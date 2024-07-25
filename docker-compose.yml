@@ -1,0 +1,8 @@
+services:
+  server:
+    build:
+      context: .
+    stop_signal: SIGINT
+    hostname: server
+    ports:
+      - '8000:8000'
