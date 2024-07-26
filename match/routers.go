@@ -1,13 +1,13 @@
 package match
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 	"os"
 	"path"
 
 	"github.com/gin-gonic/gin"
+	"github.com/perimeterx/marshmallow"
 )
 
 func LogMatch(c *gin.Context) {
@@ -16,6 +16,10 @@ func LogMatch(c *gin.Context) {
 
 	if !foundTestNameParam || !foundEpochParam {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing parameters"})
+		return
+	}
+	if epoch == "last" {
+		c.JSON(http.StatusBadRequest, gin.H{"Nostradamus": "No... no... no..."})
 		return
 	}
 
@@ -33,20 +37,26 @@ func LogMatch(c *gin.Context) {
 		return
 	}
 
-	var testCollection map[string]*json.RawMessage
-	if err := json.Unmarshal(byteValue, &testCollection); err != nil {
+	testCollection := TestCollection{}
+	result, err := marshmallow.Unmarshal(byteValue, &testCollection)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error occured while unmarshalling test json file"})
 		return
 	}
 
-	nextEpoch, ok := testCollection[epoch]
+	nextEpoch, ok := result[epoch]
 	if !ok {
 		c.JSON(http.StatusNotFound, gin.H{"error": "No such epoch"})
 		return
 	}
 
+	if testCollection.Last == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "No last epoch data"})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"epoch":     nextEpoch,
-		"test_name": testName,
+		"epoch":         nextEpoch,
+		"is_last_epoch": testCollection.Last == nextEpoch,
 	})
 }
