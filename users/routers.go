@@ -2,12 +2,15 @@ package users
 
 import (
 	"encoding/json"
+	"etteryand0/matchmaking/server/models"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func GetWaitingUsers(c *gin.Context) {
@@ -39,5 +42,20 @@ func GetWaitingUsers(c *gin.Context) {
 		return
 	}
 
+	if epoch == "00000000-0000-0000-0000-000000000000" {
+		UUID := uuid.New().String()
+		session := models.Session{
+			ID:       UUID,
+			TestName: testName,
+			Finished: false,
+		}
+		if err := session.Create(); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": fmt.Sprintln("DB error:", err.Error()),
+			})
+			return
+		}
+		c.SetCookie("session", UUID, 60*10, "/", "localhost", false, true)
+	}
 	c.JSON(http.StatusOK, users)
 }
