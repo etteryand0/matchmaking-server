@@ -3,24 +3,29 @@ package common
 import (
 	"fmt"
 
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/postgres"
+	// "gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 var DB *gorm.DB
 
-func ConnectDatabase() {
-	db, err := gorm.Open(sqlite.Open("server.db"), &gorm.Config{})
+func ConnectDatabase() error {
+	fmt.Println("Connecting to database")
+	// db, err := gorm.Open(sqlite.Open("server.db"), &gorm.Config{})
+	dsn := "host=db user=server password=server dbname=server port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic(fmt.Sprintln("Database connection failed", err.Error()))
+		return err
 	}
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		panic(fmt.Sprintln("Database connection failed", err.Error()))
+		return err
 	}
 
 	sqlDB.SetMaxIdleConns(10)
 
 	DB = db
+	return nil
 }
