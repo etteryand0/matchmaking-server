@@ -1,4 +1,18 @@
 services:
+  db:
+    image: postgres
+    restart: always
+    hostname: db
+    environment:
+      POSTGRES_USER: server
+      POSTGRES_PASSWORD: server
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U server -d server"]
+      interval: 5s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
   server:
     build:
       context: .
@@ -6,3 +20,9 @@ services:
     hostname: server
     ports:
       - '8000:8000'
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
+    environment:
+      - GIN_MODE=release
