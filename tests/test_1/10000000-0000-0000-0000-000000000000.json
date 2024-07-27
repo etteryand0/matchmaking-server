@@ -1,60 +1,60 @@
 [
   {
-    "user_id": "1",
+    "user_id": "c1",
     "mmr": 10,
     "roles": ["top", "mid", "bot", "sup", "jungle"],
     "waitingTime": 12
   },
   {
-    "user_id": "2",
+    "user_id": "c2",
     "mmr": 30,
     "roles": ["mid", "top", "bot", "sup", "jungle"],
     "waitingTime": 15
   },
   {
-    "user_id": "3",
+    "user_id": "c3",
     "mmr": 50,
     "roles": ["mid", "top", "bot", "sup", "jungle"],
     "waitingTime": 30
   },
   {
-    "user_id": "4",
+    "user_id": "c4",
     "mmr": 100,
     "roles": ["top", "mid", "bot", "sup", "jungle"],
     "waitingTime": 34
   },
   {
-    "user_id": "5",
+    "user_id": "c5",
     "mmr": 121,
     "roles": ["bot", "mid", "top", "sup", "jungle"],
     "waitingTime": 67
   },
   {
-    "user_id": "6",
+    "user_id": "c6",
     "mmr": 20,
     "roles": ["bot", "mid", "top", "sup", "jungle"],
     "waitingTime": 34
   },
   {
-    "user_id": "7",
+    "user_id": "c7",
     "mmr": 40,
     "roles": ["sup", "mid", "bot", "top", "jungle"],
     "waitingTime": 23
   },
   {
-    "user_id": "8",
+    "user_id": "c8",
     "mmr": 60,
     "roles": ["sup", "mid", "bot", "top", "jungle"],
     "waitingTime": 30
   },
   {
-    "user_id": "9",
+    "user_id": "c9",
     "mmr": 100,
     "roles": ["jungle", "mid", "bot", "sup", "top"],
     "waitingTime": 1
   },
   {
-    "user_id": "10",
+    "user_id": "c10",
     "mmr": 100,
     "roles": ["jungle", "mid", "bot", "sup", "top"],
     "waitingTime": 99
