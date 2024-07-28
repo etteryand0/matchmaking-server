@@ -20,7 +20,7 @@ type UserData struct {
 	MMR  int
 }
 
-func (m *Match) CalculateScore() (float64, error) {
+func (m *Match) CalculateScore(testName string, thisEpochPosition int) (float64, error) {
 	if len(m.Teams) != 2 {
 		return 0, errors.New("invalid teams count")
 	}
@@ -66,7 +66,10 @@ func (m *Match) CalculateScore() (float64, error) {
 		}
 
 		var users []models.User
-		result := common.DB.Select("id", "mmr", "roles", "epoch_position").Find(&users, userIds)
+		result := common.DB.Select("id", "mmr", "roles", "epoch_position").Where(
+			"test_name = ?",
+			testName,
+		).Find(&users, userIds)
 		if result.Error != nil {
 			return 0, errors.New(fmt.Sprint("DB error:", result.Error.Error()))
 		}
@@ -114,7 +117,11 @@ func (m *Match) CalculateScore() (float64, error) {
 			}
 
 			// Calculate time score
+			result := common.DB.Exec("SELECT sum(interval) FROM epoches WHERE position >= ? AND position <= ?", thisEpochPosition, user.EpochPosition)
 
+			if result.Error != nil {
+				return 0, errors.New(fmt.Sprint("DB errpr: ", result.Error.Error()))
+			}
 		}
 		teamData.MMRMedian = common.Median(mmrs)
 		teams[teamIndex] = teamData

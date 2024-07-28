@@ -19,23 +19,6 @@ func SaveMatch(c *gin.Context) {
 		return
 	}
 
-	var matchesToCommit []models.Match
-	for _, matchData := range matchDatas {
-		score, err := matchData.CalculateScore()
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		matchesToCommit = append(matchesToCommit, models.Match{
-			ID:        matchData.MatchId,
-			TestName:  testName,
-			Epoch:     epoch,
-			Score:     score,
-			SessionID: c.GetString("session_id"),
-		})
-	}
-
 	var epochModel models.Epoch
 	result := common.DB.Model(&models.Epoch{}).Where("epoch = ? AND test_name = ?", epoch, testName).First(&epochModel)
 	if result.Error != nil {
@@ -50,6 +33,23 @@ func SaveMatch(c *gin.Context) {
 		return
 	}
 
+	var matchesToCommit []models.Match
+	for _, matchData := range matchDatas {
+		score, err := matchData.CalculateScore(testName, epochModel.Position)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		matchesToCommit = append(matchesToCommit, models.Match{
+			ID:        matchData.MatchId,
+			TestName:  testName,
+			Epoch:     epoch,
+			Score:     score,
+			SessionID: c.GetString("session_id"),
+		})
+	}
+
 	if err := models.CreateMatchBatch(&matchesToCommit); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprint("DB error: ", err.Error()),
@@ -58,7 +58,7 @@ func SaveMatch(c *gin.Context) {
 	}
 
 	var nextEpoch models.Epoch
-	result = common.DB.Where("position = ?", epochModel.Position+1).Limit(1).Find(&nextEpoch)
+	result = common.DB.Where("position = ? AND test_name = ?", epochModel.Position+1, testName).Limit(1).Find(&nextEpoch)
 	if result.Error != nil {
 		c.JSON(
 			http.StatusInternalServerError,
@@ -82,7 +82,7 @@ func SaveMatch(c *gin.Context) {
 	}
 
 	isLast := false
-	result = common.DB.Model(&nextEpoch).Select("1").Where("position = ?", epochModel.Position+2).Limit(1).Find(&nextEpoch)
+	result = common.DB.Model(&nextEpoch).Select("1").Where("position = ? AND test_name = ?", epochModel.Position+2, testName).Limit(1).Find(&nextEpoch)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": fmt.Sprintln("DB error:", result.Error.Error()),
