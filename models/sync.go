@@ -72,7 +72,7 @@ func SyncDB() error {
 					Roles:         string(byteValue),
 					ID:            user.UserId,
 					MMR:           user.MMR,
-					WaitingTime:   intervals[epoch] + user.WaitingTime,
+					WaitingTime:   user.WaitingTime,
 					EpochPosition: position,
 				})
 			}
